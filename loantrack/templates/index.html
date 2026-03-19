@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LoanTrack Pro — Loan Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     LOGIN SCREEN
+════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon-wrap">💰</div>
+      <div class="brand">LoanTrack Pro</div>
+      <div class="sub">Monthly Profit & Loan Management</div>
+    </div>
+    <div id="loginError" style="display:none;background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:16px;">
+      Invalid username or password.
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"/>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">
+      🔐 Sign In
+    </button>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--text-dim);">
+      Default: admin / admin123 &nbsp;|&nbsp; staff / staff123
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">💰 LoanTrack</div>
+      <div class="brand-tag">Management System</div>
+    </div>
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div class="user-info">
+        <div class="uname" id="sidebarUsername">Admin</div>
+        <div class="urole" id="sidebarRole">Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Overview</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+
+      <div class="nav-section">Operations</div>
+      <div class="nav-item" onclick="showPage('consumers')">
+        <span class="nav-icon">👥</span> Consumers
+      </div>
+      <div class="nav-item" onclick="showPage('loans')">
+        <span class="nav-icon">📋</span> Loans
+      </div>
+      <div class="nav-item" onclick="showPage('payments')">
+        <span class="nav-icon">💳</span> Payments
+      </div>
+      <div class="nav-item" onclick="showPage('expenses')">
+        <span class="nav-icon">🧾</span> Expenses
+      </div>
+
+      <div class="nav-section">Analytics</div>
+      <div class="nav-item" onclick="showPage('profit')">
+        <span class="nav-icon">📈</span> Profit Report
+      </div>
+      <div class="nav-item" onclick="showPage('reports')">
+        <span class="nav-icon">📑</span> Reports
+      </div>
+
+      <div class="nav-section admin-only">Admin</div>
+      <div class="nav-item admin-only" onclick="showPage('users')">
+        <span class="nav-icon">🔑</span> Users
+      </div>
+      <div class="nav-item admin-only" onclick="showPage('logs')">
+        <span class="nav-icon">📜</span> Activity Log
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-full btn-sm" onclick="doLogout()">
+        🚪 Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div id="topbarDate" style="font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;"></div>
+    </div>
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="stat-label">Total Consumers</div><div class="stat-value" id="s-consumers">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Loans</div><div class="stat-value" id="s-loans">—</div></div>
+          <div class="stat-card"><div class="stat-label">Active Loans</div><div class="stat-value gold" id="s-active">—</div></div>
+          <div class="stat-card"><div class="stat-label">Overdue Loans</div><div class="stat-value red" id="s-overdue">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Disbursed</div><div class="stat-value" id="s-disbursed">—</div><div class="stat-sub">Principal loaned out</div></div>
+          <div class="stat-card"><div class="stat-label">Total Collected</div><div class="stat-value green" id="s-collected">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Interest Income</div><div class="stat-value gold" id="s-interest">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Penalties</div><div class="stat-value red" id="s-penalties">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Expenses</div><div class="stat-value red" id="s-expenses">—</div></div>
+          <div class="stat-card"><div class="stat-label">Gross Profit</div><div class="stat-value green" id="s-gross">—</div></div>
+          <div class="stat-card"><div class="stat-label">Net Profit (All Time)</div><div class="stat-value green" id="s-net">—</div><div class="stat-sub">After expenses</div></div>
+          <div class="stat-card" style="border-color:var(--gold-dk);"><div class="stat-label">This Month Net</div><div class="stat-value gold" id="s-monthly">—</div></div>
+        </div>
+
+        <div class="two-col">
+          <div class="chart-bar-wrap">
+            <div class="chart-title">📈 Monthly Profit — <span id="chartYear">2025</span></div>
+            <div class="chart-bars" id="profitChart"></div>
+            <div style="margin-top:12px;display:flex;gap:16px;font-size:11px;color:var(--text-muted);">
+              <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;background:var(--gold);border-radius:2px;display:inline-block;"></span> Net Profit</span>
+            </div>
+          </div>
+          <div class="chart-bar-wrap">
+            <div class="chart-title">💸 Monthly Expenses — <span id="chartYear2">2025</span></div>
+            <div class="chart-bars" id="expenseChart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONSUMERS ── -->
+      <div class="page" id="page-consumers">
+        <div class="table-card">
+          <div class="table-head">
+            <div class="table-head-title">Consumer Records</div>
+            <input class="search-box" id="consumerSearch" placeholder="🔍 Search consumer..." oninput="loadConsumers()"/>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addConsumer')">+ Add Consumer</button>
+          </div>
+          <div id="consumerTableWrap">
+            <table>
+              <thead><tr><th>#</th><th>Name</th><th>Contact</th><th>Address</th><th>Loans</th><th>Actions</th></tr></thead>
+              <tbody id="consumerTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── LOANS ── -->
+      <div class="page" id="page-loans
